@@ -713,13 +713,16 @@ function colByName(A,n){for(var i=0;i<A.cols.length;i++)if(A.cols[i].name===n)re
 
 /* ================= رسوم SVG ================= */
 function barChart(labels,values,title,useAccent){
-  var W=520,rowH=30,left=150,right=60,top=6,H=top+labels.length*rowH+6;
+  var MAXL=30,lab=labels.map(function(l){l=String(l);return l.length>MAXL?l.slice(0,MAXL-1)+"…":l});
+  var longest=lab.reduce(function(m,l){return Math.max(m,l.length)},0);
+  var valW=values.reduce(function(m,v){return Math.max(m,fmt(v).length)},0);
+  var W=520,rowH=30,left=Math.min(230,Math.max(110,Math.round(longest*7+16))),right=Math.max(60,valW*7+14),top=6,H=top+labels.length*rowH+6;
   var vmax=maxOf(values)||1,fill=useAccent?"var(--accent)":"var(--brand)";
   var desc=title+": "+labels.map(function(l,i){return l+" "+fmt(values[i])}).join("، ");
   var s='<svg class="c" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(desc)+'">';
   labels.forEach(function(l,i){
     var y=top+i*rowH,bw=(W-left-right)*(Math.max(values[i],0)/vmax);
-    l=String(l); if(l.length>22) l=l.slice(0,21)+"…";
+    l=lab[i];
     s+='<text class="t-lbl" x="'+(left-8)+'" y="'+(y+19)+'" text-anchor="end">'+esc(l)+'</text>'+
        '<rect x="'+left+'" y="'+(y+4)+'" width="'+Math.max(bw,2).toFixed(1)+'" height="21" rx="4" fill="'+fill+'"/>'+
        '<text class="t-val" x="'+(left+bw+6).toFixed(1)+'" y="'+(y+19)+'">'+fmt(values[i])+'</text>';
