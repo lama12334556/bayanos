@@ -1,0 +1,1169 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>بيانوس Bayanos</title><script>window.BAYANOS_STANDALONE=true;</script><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script><style>[hidden]{display:none!important}html{color-scheme:light}body{margin:0}</style></head><body>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: عمود واحد بعرض 980px. شريط الاسم واللغة، منطقة الرفع، لوحة التخصيص، ثم التقرير.
+   Type: Cairo للعناوين، IBM Plex Sans Arabic / IBM Plex Sans للنص. */
+:root{
+  --bg:#eef3f5; --surface:#ffffff; --ink:#12222d; --muted:#5d707c; --line:#d9e3e8;
+  --brand:#0b6e79; --brand-ink:#ffffff; --accent:#c98a1b; --soft:#e2f0f2;
+  --warn:#b4481f; --ok:#1b7a4b;
+  --font-head:'Cairo','Segoe UI','Tahoma','Noto Sans Arabic','Geeza Pro','DejaVu Sans',sans-serif;
+  --font-body:'IBM Plex Sans Arabic','IBM Plex Sans','Segoe UI','Tahoma','Noto Sans Arabic','Geeza Pro','DejaVu Sans',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1a21; --surface:#15262f; --ink:#e6eef2; --muted:#93a8b3; --line:#27404c;
+    --brand:#4cc3cf; --brand-ink:#08262b; --accent:#e3a93f; --soft:#173943;
+    --warn:#f08a5d; --ok:#5bc78d; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1a21; --surface:#15262f; --ink:#e6eef2; --muted:#93a8b3; --line:#27404c;
+  --brand:#4cc3cf; --brand-ink:#08262b; --accent:#e3a93f; --soft:#173943;
+  --warn:#f08a5d; --ok:#5bc78d; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:16px; line-height:1.75;
+  padding-block:0 56px;
+  padding-left:max(16px, env(safe-area-inset-left,0px));
+  padding-right:max(16px, env(safe-area-inset-right,0px));
+}
+.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--font-head);margin:0;text-wrap:balance;line-height:1.35}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:20px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand svg{width:34px;height:34px;flex:none}
+.brand b{font-family:var(--font-head);font-size:22px;font-weight:800;color:var(--brand);white-space:nowrap}
+.brand i{font-style:normal;color:var(--muted);font-family:var(--font-head);font-weight:500;font-size:16px}
+.bar .acts{display:flex;gap:8px;align-items:center}
+.top{display:flex;flex-direction:column;gap:6px;padding-top:6px}
+.top h1{font-size:34px;font-weight:800;color:var(--ink)}
+.top p{margin:0;color:var(--muted);max-width:62ch}
+.lock{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--ok);font-weight:500}
+.lock svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;flex:none}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px}
+.upload{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
+.drop{
+  border:2px dashed var(--line);border-radius:14px;padding:22px;text-align:center;cursor:pointer;
+  transition:border-color .15s, background .15s;min-width:0;
+}
+.drop:hover,.drop.over,.drop:focus-visible{border-color:var(--brand);background:var(--soft);outline:none}
+.drop strong{font-family:var(--font-head);font-size:18px;display:block}
+.drop span{color:var(--muted);font-size:14px}
+.side{display:flex;flex-direction:column;gap:10px;min-width:170px}
+button,select,input[type=text]{font:inherit;color:inherit}
+.btn{
+  background:var(--brand);color:var(--brand-ink);border:0;border-radius:10px;padding:9px 16px;
+  font-family:var(--font-head);font-weight:700;font-size:15px;cursor:pointer;
+}
+.btn.ghost{background:transparent;color:var(--brand);border:1.5px solid var(--brand)}
+.btn.small{padding:6px 12px;font-size:14px}
+.btn:focus-visible,select:focus-visible,input:focus-visible,.chip:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.grid-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field.wide{grid-column:1/-1}
+.field label,.field .lab{font-size:13px;color:var(--muted);font-weight:500}
+.field input,.field select{
+  background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 12px;width:100%;
+}
+.chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{
+  border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:99px;padding:3px 13px;
+  cursor:pointer;font-size:14px;
+}
+.chip[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.tools h2{font-size:17px;margin-bottom:12px}
+.divider{border-top:1px solid var(--line);margin-top:16px;padding-top:16px}
+.note{background:var(--soft);border-radius:12px;padding:10px 14px;font-size:14px}
+.err{background:color-mix(in srgb,var(--warn) 14%,var(--surface));border:1px solid var(--warn);border-radius:12px;padding:10px 14px;font-size:14px}
+
+.hero{background:var(--brand);color:var(--brand-ink);border-radius:18px;padding:26px 24px;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+.hero h2{font-size:28px;font-weight:800;overflow-wrap:anywhere}
+.hero h2.long{font-size:20px}
+.hero p{margin:4px 0 0;opacity:.88;font-size:14px;overflow-wrap:anywhere}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.kpi{padding:14px 16px;border-radius:14px;background:var(--surface);border:1px solid var(--line);min-width:0}
+.kpi b{display:block;font-family:var(--font-head);font-size:26px;font-weight:800;color:var(--brand);font-variant-numeric:tabular-nums;line-height:1.4}
+.kpi span{font-size:13px;color:var(--muted)}
+.kpi small{display:block;font-size:12.5px;margin-top:2px;font-weight:600}
+.up{color:var(--ok)} .down{color:var(--warn)}
+.sec h2{font-size:21px;color:var(--brand);margin-bottom:10px}
+.sec h3{font-size:15px;margin:0 0 4px}
+.sec ul{margin:0;padding-inline-start:20px}
+.sec li{margin-bottom:6px}
+.sec li.warn{color:var(--warn)}
+.sec li.info{color:var(--muted)}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:24px 28px}
+.chart{min-width:0}
+svg.c{width:100%;height:auto;direction:ltr;display:block}
+svg.c text{font-family:var(--font-body);unicode-bidi:plaintext}
+.t-lbl{font-size:12.5px;fill:var(--ink)} .t-val{font-size:11.5px;fill:var(--muted)} .t-cell{font-size:12px;fill:var(--ink);font-weight:600}
+.grid-line{stroke:var(--line);stroke-width:1}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+th{background:var(--bg);text-align:start;padding:9px 10px;font-weight:600;white-space:nowrap}
+td{padding:9px 10px;border-top:1px solid var(--line);white-space:nowrap}
+.pill{display:inline-block;padding:1px 10px;border-radius:99px;background:var(--soft);font-size:12.5px;color:var(--ink)}
+.row-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.toast{color:var(--ok);font-size:14px}
+.foot{text-align:center;color:var(--muted);font-size:13px;padding-top:8px}
+.stack{display:flex;flex-direction:column;gap:20px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:560px){
+  .upload{grid-template-columns:1fr}
+  .top h1{font-size:28px}
+  .hero h2{font-size:23px}
+  .bar{flex-wrap:wrap}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{
+  .noprint{display:none!important}
+  body{background:#fff;padding:0}
+  .panel,.kpi{break-inside:avoid;border-color:#cfd8dc}
+  .charts{grid-template-columns:1fr 1fr}
+  .chartsec{break-inside:auto}
+  .chart{break-inside:avoid}
+}
+</style>
+
+<div class="wrap">
+  <div class="bar noprint">
+    <div class="brand">
+      <svg viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="var(--brand)"/><rect x="7" y="17" width="5" height="10" rx="1.5" fill="var(--brand-ink)"/><rect x="14.5" y="11" width="5" height="16" rx="1.5" fill="var(--brand-ink)"/><rect x="22" y="7" width="5" height="20" rx="1.5" fill="var(--accent)"/></svg>
+      <b id="brandName">بيانوس</b>
+    </div>
+    <div class="acts">
+      
+      <button class="btn ghost small" id="langBtn" type="button">English</button>
+    </div>
+  </div>
+
+  <header class="top noprint">
+    <h1 data-i18n="tagline"></h1>
+    <p data-i18n="sub"></p>
+    <span class="lock">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+      <span data-i18n="privacy"></span>
+    </span>
+  </header>
+
+  <section class="panel noprint" aria-label="upload">
+    <div class="upload">
+      <div class="drop" id="drop" tabindex="0" role="button">
+        <strong data-i18n="dropTitle"></strong>
+        <span>xlsx · xls · csv</span>
+        <input id="file" type="file" accept=".xlsx,.xls,.csv,.txt" hidden>
+      </div>
+      <div class="side">
+        <button class="btn ghost" id="sampleBtn" type="button" data-i18n="sampleBtn"></button>
+      </div>
+    </div>
+    <div class="divider grid-fields">
+      <div class="field">
+        <label for="title" data-i18n="lblTitle"></label>
+        <input id="title" type="text">
+      </div>
+      <div class="field" id="sheetField" hidden>
+        <label for="sheet" data-i18n="lblSheet"></label>
+        <select id="sheet"></select>
+      </div>
+    </div>
+    <div id="msg" style="margin-top:14px" role="alert" hidden></div>
+  </section>
+
+  <section class="panel tools noprint" id="tools" hidden>
+    <h2 data-i18n="tools"></h2>
+    <div class="grid-fields">
+      <div class="field" id="fMetric"><label for="metric" data-i18n="lblMetric"></label><select id="metric"></select></div>
+      <div class="field" id="fGroup"><label for="group" data-i18n="lblGroup"></label><select id="group"></select></div>
+      <div class="field" id="fDate"><label for="dateCol" data-i18n="lblDate"></label><select id="dateCol"></select></div>
+      <div class="field"><label for="agg" data-i18n="lblAgg"></label><select id="agg"></select></div>
+      <div class="field" id="fFcol"><label for="fcol" data-i18n="lblFilterCol"></label><select id="fcol"></select></div>
+      <div class="field wide" id="fFval"><span class="lab" data-i18n="lblFilterVal"></span><div class="chips" id="chips" role="group"></div></div>
+    </div>
+  </section>
+
+  <main id="report" aria-live="polite"></main>
+</div>
+
+<script>
+(function(){
+"use strict";
+var $ = function(id){return document.getElementById(id)};
+var AR_D = "٠١٢٣٤٥٦٧٨٩";
+var MAX_ROWS = 200000;
+var STANDALONE = !!window.BAYANOS_STANDALONE;
+var DL = null;
+
+/* ================= النصوص | Strings ================= */
+var T = {
+ar:{
+  dir:"rtl", other:"English", digAr:"١٢٣", digLa:"123",
+  tagline:"بياناتك في تقرير جاهز خلال ثوانٍ",
+  sub:"ملف Excel أو CSV يتحول إلى تقرير منسّق فيه المؤشرات والرسوم والاتجاهات وفحص جودة البيانات.",
+  privacy:"الملف يُعالج داخل المتصفح فقط ولا يُرفع إلى أي مكان",
+  dropTitle:"اسحب الملف إلى هنا أو اضغط للاختيار", sampleBtn:"جرّب بيانات تجريبية",
+  lblTitle:"عنوان التقرير", lblSheet:"الورقة (Sheet)",
+  tools:"تخصيص التقرير", lblMetric:"المقياس الرئيسي", lblGroup:"التقسيم حسب", lblDate:"عمود التاريخ",
+  lblAgg:"طريقة الحساب", lblFilterCol:"فلترة حسب", lblFilterVal:"القيم المختارة (بدون اختيار = الكل)",
+  aggSum:"المجموع", aggAvg:"المتوسط", aggCount:"العدد", none:"بدون", clear:"مسح الاختيار",
+  sampleNote:"هذه بيانات تجريبية مولّدة للتوضيح فقط وليست أرقامًا حقيقية. ارفع ملفك لعرض تقريرك.",
+  sampleSrc:"بيانات تجريبية", source:"المصدر", reportOf:function(n){return "تقرير "+n}, defTitle:"تقرير مبيعات المشروع المنزلي",
+  kRows:"عدد الصفوف", kCols:"عدد الأعمدة", kMissing:"القيم المفقودة", kTotal:function(m,a){return a+" «"+m+"»"},
+  vsPrev:"عن الشهر السابق",
+  hNotes:"أبرز الملاحظات", hCharts:"الرسوم", hCorr:"الارتباط بين الأعمدة الرقمية", hStats:"جدول الإحصاءات",
+  hCols:"نظرة على الأعمدة", hPreview:"معاينة أول الصفوف", hQuality:"جودة البيانات", hFile:"ملاحظات من الملف نفسه",
+  cName:"العمود", cCount:"العدد", cMean:"المتوسط", cMin:"الأدنى", cMed:"الوسيط", cMax:"الأعلى", cOut:"قيم شاذة",
+  cType:"النوع", cMiss:"مفقود", cUniq:"قيم مختلفة",
+  tNum:"رقمي", tCat:"فئات", tDate:"تاريخ", tText:"نص", tId:"معرّف (مستبعد من التحليل)",
+  copy:"نسخ الملخص", copyTable:"نسخ جدول الإحصاءات", copied:"تم النسخ ويمكنك اللصق الآن.", copyFail:"تعذّر النسخ، حدّد النص يدويًا.",
+  print:"حفظ كـ PDF / طباعة", dlSummary:"تنزيل الملخص (.md)", dlData:"تنزيل البيانات المفلترة (.csv)", dlHtml:"تنزيل التقرير (.html)", saved:"تم الحفظ.", dlFail:"تعذّر الحفظ.",
+  noNumeric:"لا توجد أعمدة رقمية كافية للتحليل.",
+  chTopCat:function(c){return "أكثر القيم تكرارًا في «"+c+"»"},
+  chGroup:function(a,m,g){return a+" «"+m+"» حسب «"+g+"»"},
+  chHist:function(c){return "توزيع «"+c+"»"},
+  chCompare:function(g){return "مقارنة الأعمدة الرقمية حسب «"+g+"»"},
+  chTime:function(a,m){return a+" «"+m+"» شهريًا"},
+  iStats:function(n,m,md,mx,mn){return "عمود «"+n+"»: المتوسط "+m+" والوسيط "+md+"، وأعلى قيمة "+mx+" وأدنى قيمة "+mn+"."},
+  iSkew:function(n){return "في «"+n+"» المتوسط بعيد عن الوسيط، ما يعني وجود قيم متطرفة تؤثر على الصورة العامة."},
+  iTop:function(n,v,p){return "أكثر قيمة تكرارًا في «"+n+"» هي «"+v+"» وتمثل "+p+"٪ من الصفوف."},
+  iLeadShare:function(g,v,a,m,p){return "أعلى «"+g+"» من حيث "+a+" «"+m+"» هو «"+v+"»، وحصته "+p+"٪ من الإجمالي."},
+  iLeadAvg:function(g,v,m,x,p){return "أعلى «"+g+"» من حيث متوسط «"+m+"» هو «"+v+"» ("+x+")، أي "+p+"٪ فوق المتوسط العام."},
+  iCorr:function(a,b,r,strong,n){return (strong?"ارتباط قوي":"ارتباط متوسط")+" بين «"+a+"» و«"+b+"» (معامل الارتباط "+r+"، على "+n+" صفًا). الارتباط لا يعني السببية."},
+  iTrend:function(m,pct,up){return "«"+m+"» "+(up?"ارتفع":"انخفض")+" "+pct+"٪ في آخر شهر مقارنة بالشهر الذي قبله (قد يكون الشهر الأخير غير مكتمل)."},
+  iHalf:function(m,pct,up){return "على العموم، النصف الثاني من الفترة "+(up?"أعلى":"أدنى")+" من النصف الأول بنحو "+pct+"٪ في «"+m+"»."},
+  iBestWorst:function(m,b,bv,w,wv){return "أفضل شهر في «"+m+"» هو "+b+" ("+bv+")، وأضعف شهر هو "+w+" ("+wv+")."},
+  iOut:function(n,c){return "«"+n+"»: "+c+" قيمة شاذة محتملة خارج النطاق المعتاد، وتستحق المراجعة."},
+  qMiss:function(n,p){return "«"+n+"»: "+p+"٪ قيم مفقودة."},
+  qDups:function(n){return "يوجد "+n+" صف مكرر."},
+  qClean:"لا توجد قيم مفقودة ولا صفوف مكررة. البيانات نظيفة.",
+  nTotals:function(n){return "تم استبعاد "+n+" صف «إجمالي» حتى لا يُحسب مرتين في المجاميع."},
+  nIds:function(l){return "اعتُبرت هذه الأعمدة معرّفات وليست قياسات: "+l+"."},
+  nAmbig:function(l){return "تواريخ العمود «"+l+"» غامضة (مثل 03/04/2025) وافترضنا الصيغة يوم/شهر/سنة. تأكد من ذلك."},
+  nHijri:function(l){return "العمود «"+l+"» يحتوي تواريخ هجرية، وحُوّلت تقريبيًا إلى الميلادي (قد يختلف اليوم بفارق يوم)."},
+  nTrunc:function(n){return "الملف كبير، وحُلّلت أول "+n+" صف فقط."},
+  nSerial:function(l){return "العمود «"+l+"» كان أرقام تسلسلية لتواريخ Excel وحُوّل إلى تواريخ."},
+  errRead:"تعذّرت قراءة الملف. جرّب ملفًا آخر.", errOpen:"تعذّر فتح الملف. تأكد من أنه Excel أو CSV سليم.",
+  errEmpty:"الملف فارغ أو لا يحتوي صفوف بيانات.", errLib:"ملفات xls القديمة تحتاج مكتبة إضافية لم تُحمَّل. احفظ الملف بصيغة xlsx أو CSV وجرّب مجددًا.",
+  loading:"جارٍ التحليل…", dateLocale:"ar-SA-u-nu-",
+  sample:{date:"التاريخ",product:"المنتج",city:"المدينة",qty:"الكمية",sales:"المبيعات",
+    products:["شموع","صابون يدوي","حلويات","اكسسوارات","عطور"],cities:["جدة","الرياض","مكة","الدمام"]}
+},
+en:{
+  dir:"ltr", other:"العربية", digAr:"", digLa:"",
+  tagline:"Your data, a finished report in seconds",
+  sub:"An Excel or CSV file becomes a clean report with KPIs, charts, trends and data-quality checks.",
+  privacy:"Your file is processed in your browser only and never uploaded anywhere",
+  dropTitle:"Drag a file here or click to choose", sampleBtn:"Try sample data",
+  lblTitle:"Report title", lblSheet:"Sheet",
+  tools:"Customize the report", lblMetric:"Main metric", lblGroup:"Break down by", lblDate:"Date column",
+  lblAgg:"Calculation", lblFilterCol:"Filter by", lblFilterVal:"Selected values (none = all)",
+  aggSum:"Sum", aggAvg:"Average", aggCount:"Count", none:"None", clear:"Clear selection",
+  sampleNote:"This is generated sample data for illustration, not real figures. Upload your file to see your own report.",
+  sampleSrc:"Sample data", source:"Source", reportOf:function(n){return n+" report"}, defTitle:"Home business sales report",
+  kRows:"Rows", kCols:"Columns", kMissing:"Missing values", kTotal:function(m,a){return a+" of "+m},
+  vsPrev:"vs previous month",
+  hNotes:"Key findings", hCharts:"Charts", hCorr:"Correlation between numeric columns", hStats:"Statistics",
+  hCols:"Columns overview", hPreview:"First rows", hQuality:"Data quality", hFile:"Notes from the file itself",
+  cName:"Column", cCount:"Count", cMean:"Mean", cMin:"Min", cMed:"Median", cMax:"Max", cOut:"Outliers",
+  cType:"Type", cMiss:"Missing", cUniq:"Unique",
+  tNum:"Numeric", tCat:"Category", tDate:"Date", tText:"Text", tId:"Identifier (excluded)",
+  copy:"Copy summary", copyTable:"Copy statistics table", copied:"Copied. You can paste it now.", copyFail:"Couldn't copy. Select the text manually.",
+  print:"Save as PDF / Print", dlSummary:"Download summary (.md)", dlData:"Download filtered data (.csv)", dlHtml:"Download report (.html)", saved:"Saved.", dlFail:"Couldn't save.",
+  noNumeric:"Not enough numeric columns to analyze.",
+  chTopCat:function(c){return "Most frequent values in “"+c+"”"},
+  chGroup:function(a,m,g){return a+" of “"+m+"” by “"+g+"”"},
+  chHist:function(c){return "Distribution of “"+c+"”"},
+  chCompare:function(g){return "Numeric columns compared by “"+g+"”"},
+  chTime:function(a,m){return a+" of “"+m+"” by month"},
+  iStats:function(n,m,md,mx,mn){return "“"+n+"”: mean "+m+", median "+md+", max "+mx+", min "+mn+"."},
+  iSkew:function(n){return "In “"+n+"” the mean is far from the median, which points to outliers pulling the picture."},
+  iTop:function(n,v,p){return "The most frequent value in “"+n+"” is “"+v+"” ("+p+"% of rows)."},
+  iLeadShare:function(g,v,a,m,p){return "Top “"+g+"” by "+a.toLowerCase()+" of “"+m+"” is “"+v+"”, with "+p+"% of the total."},
+  iLeadAvg:function(g,v,m,x,p){return "Top “"+g+"” by average “"+m+"” is “"+v+"” ("+x+"), "+p+"% above the overall average."},
+  iCorr:function(a,b,r,strong,n){return (strong?"Strong":"Moderate")+" correlation between “"+a+"” and “"+b+"” (r = "+r+", "+n+" rows). Correlation is not causation."},
+  iTrend:function(m,pct,up){return "“"+m+"” "+(up?"rose":"fell")+" "+pct+"% in the latest month versus the one before (the latest month may be incomplete)."},
+  iHalf:function(m,pct,up){return "Overall, the second half of the period is about "+pct+"% "+(up?"higher":"lower")+" than the first half for “"+m+"”."},
+  iBestWorst:function(m,b,bv,w,wv){return "Best month for “"+m+"” is "+b+" ("+bv+"); weakest is "+w+" ("+wv+")."},
+  iOut:function(n,c){return "“"+n+"”: "+c+" possible outlier value(s) outside the usual range. Worth a look."},
+  qMiss:function(n,p){return "“"+n+"”: "+p+"% missing values."},
+  qDups:function(n){return n+" duplicate row(s) found."},
+  qClean:"No missing values and no duplicate rows. The data is clean.",
+  nTotals:function(n){return n+" “total” row(s) were excluded so they aren't counted twice in sums."},
+  nIds:function(l){return "These columns were treated as identifiers, not measurements: "+l+"."},
+  nAmbig:function(l){return "Dates in “"+l+"” are ambiguous (like 03/04/2025); day/month/year was assumed. Please verify."},
+  nHijri:function(l){return "“"+l+"” contains Hijri dates, converted approximately to Gregorian (may differ by one day)."},
+  nTrunc:function(n){return "The file is large; only the first "+n+" rows were analyzed."},
+  nSerial:function(l){return "“"+l+"” held Excel serial numbers and was converted to dates."},
+  errRead:"Couldn't read the file. Try another one.", errOpen:"The file didn't open. Make sure it's a valid Excel or CSV file.",
+  errEmpty:"The file is empty or has no data rows.", errLib:"Legacy .xls files need an extra library that didn't load. Save the file as .xlsx or CSV and try again.",
+  loading:"Analyzing…", dateLocale:"en-US-u-nu-",
+  sample:{date:"Date",product:"Product",city:"City",qty:"Quantity",sales:"Sales",
+    products:["Candles","Handmade soap","Sweets","Accessories","Perfumes"],cities:["Jeddah","Riyadh","Makkah","Dammam"]}
+}};
+
+var state = {lang:"ar", digits:"la", full:null, fileName:"", sample:true, book:null, titleEdited:false,
+             fileNotes:{title:null,footers:[],excluded:0,truncated:false},
+             opts:{metric:"",group:"",date:"",agg:"sum",fcol:"",fvals:[]}, summary:"", statsTsv:"", dataCsv:""};
+function L(){return T[state.lang]}
+function dg(s){
+  s=String(s);
+  if(state.lang==="ar"&&state.digits==="ar") return s.replace(/[0-9]/g,function(d){return AR_D[+d]});
+  return s;
+}
+
+/* ================= أدوات ================= */
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function fmt(x){
+  if(x===null||x===undefined||isNaN(x)) return "-";
+  var big = Math.abs(x)>=1000 || Math.round(x)===x;
+  return dg(x.toLocaleString("en-US",{maximumFractionDigits: big?0:2}));
+}
+function toNum(v){
+  if(typeof v==="number") return isFinite(v)?v:null;
+  if(typeof v!=="string") return null;
+  var s=v.trim().replace(/[٠-٩]/g,function(d){return AR_D.indexOf(d)}).replace(/[,٬\s]/g,"").replace(/٫/g,".");
+  if(s==="") return null;
+  if(/^[+-]?0\d+$/.test(s)) return null;
+  if(/^\+?\d{9,}$/.test(s)&&s.charAt(0)==="+") return null;
+  var n=Number(s);
+  return isFinite(n)?n:null;
+}
+function isDate(v){return v instanceof Date && !isNaN(v)}
+function sortedCopy(a){return a.slice().sort(function(x,y){return x-y})}
+function quant(s,q){var p=(s.length-1)*q,lo=Math.floor(p),hi=Math.ceil(p);return s[lo]+(s[hi]-s[lo])*(p-lo)}
+function median(a){return quant(sortedCopy(a),0.5)}
+function mean(a){var s=0;for(var i=0;i<a.length;i++)s+=a[i];return s/a.length}
+function minOf(a){var m=Infinity;for(var i=0;i<a.length;i++)if(a[i]<m)m=a[i];return m}
+function maxOf(a){var m=-Infinity;for(var i=0;i<a.length;i++)if(a[i]>m)m=a[i];return m}
+function corr(x,y){
+  var n=x.length,mx=mean(x),my=mean(y),sxy=0,sxx=0,syy=0;
+  for(var i=0;i<n;i++){var dx=x[i]-mx,dy=y[i]-my;sxy+=dx*dy;sxx+=dx*dx;syy+=dy*dy}
+  return sxx&&syy ? sxy/Math.sqrt(sxx*syy) : 0;
+}
+function corrSig(r,n){
+  if(n<10) return false;
+  var df=n-2,t=Math.abs(r)*Math.sqrt(df/((1-r*r)||1e-9));
+  var crit=df<=10?2.23:df<=15?2.13:df<=20?2.09:df<=30?2.04:df<=60?2.0:1.98;
+  return t>crit;
+}
+function outliers(v){
+  if(v.length<8) return 0;
+  var s=sortedCopy(v),q1=quant(s,.25),q3=quant(s,.75),i=q3-q1;
+  if(!i) return 0;
+  var lo=q1-1.5*i,hi=q3+1.5*i,c=0;
+  for(var k=0;k<v.length;k++)if(v[k]<lo||v[k]>hi)c++;
+  return c;
+}
+function monthKey(d){var t=new Date(d.getTime()+12*3600e3);return t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")}
+function dayStr(d){var t=new Date(d.getTime()+12*3600e3);return t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0")}
+function aggVals(arr,kind){
+  if(kind==="count") return arr.length;
+  if(!arr.length) return 0;
+  var s=0;for(var i=0;i<arr.length;i++)s+=arr[i];
+  return kind==="avg"? s/arr.length : s;
+}
+function aggName(){var k=state.opts.agg;return k==="avg"?L().aggAvg:(k==="count"?L().aggCount:L().aggSum)}
+
+/* ---------- تواريخ ---------- */
+function hijriToDate(y,m,d){
+  var jd=d+Math.ceil(29.5*(m-1))+(y-1)*354+Math.floor((3+11*y)/30)+1948439.5-1;
+  var z=Math.floor(jd+0.5),alpha=Math.floor((z-1867216.25)/36524.25),A=z+1+alpha-Math.floor(alpha/4);
+  var B=A+1524,C=Math.floor((B-122.1)/365.25),D=Math.floor(365.25*C),E=Math.floor((B-D)/30.6001);
+  var day=B-D-Math.floor(30.6001*E),month=E<14?E-1:E-13,year=month>2?C-4716:C-4715;
+  return new Date(year,month-1,day);
+}
+var DATE_RE=/^(\d{1,4})[-\/.](\d{1,2})[-\/.](\d{1,4})(?:[ T].*)?$/;
+/* يرجع {vals,ambiguous,hijri} أو null لو العمود ليس تواريخ */
+function parseDateColumn(raw){
+  var parts=[];
+  for(var i=0;i<raw.length;i++){
+    var v=raw[i];
+    if(v===null){parts.push(null);continue}
+    if(typeof v!=="string") return null;
+    var m=DATE_RE.exec(v.trim().replace(/[٠-٩]/g,function(d){return AR_D.indexOf(d)}));
+    if(!m) return null;
+    parts.push([+m[1],+m[2],+m[3],m[1].length===4]);
+  }
+  var any=parts.filter(function(p){return p});
+  if(!any.length) return null;
+  var ymd=any.every(function(p){return p[3]});
+  var order="ymd",ambiguous=false;
+  if(!ymd){
+    if(any.some(function(p){return p[3]})) return null;
+    var firstBig=any.some(function(p){return p[0]>12}),secondBig=any.some(function(p){return p[1]>12});
+    if(firstBig&&secondBig) return null;
+    order=secondBig?"mdy":"dmy";
+    if(!firstBig&&!secondBig){ambiguous=any.some(function(p){return p[0]!==p[1]&&p[0]<=12&&p[1]<=12})}
+  }
+  var hij=false,out=[];
+  for(var j=0;j<parts.length;j++){
+    var p=parts[j]; if(!p){out.push(null);continue}
+    var y,mo,d;
+    if(order==="ymd"){y=p[0];mo=p[1];d=p[2]}
+    else if(order==="dmy"){d=p[0];mo=p[1];y=p[2]}
+    else {mo=p[0];d=p[1];y=p[2]}
+    if(mo<1||mo>12||d<1||d>31) return null;
+    var dt;
+    if(y>=1300&&y<=1500){hij=true;dt=hijriToDate(y,mo,d)}
+    else if(y>=1900&&y<=2100) dt=new Date(y,mo-1,d);
+    else return null;
+    out.push(isNaN(dt)?null:dt);
+  }
+  return {vals:out,ambiguous:ambiguous,hijri:hij};
+}
+function serialToDate(s){
+  var u=new Date(Math.round((s-25569)*864e5));
+  return new Date(u.getUTCFullYear(),u.getUTCMonth(),u.getUTCDate(),u.getUTCHours(),u.getUTCMinutes());
+}
+
+/* ================= قراءة الملفات ================= */
+function parseCSV(text){
+  if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+  var first=text.split(/\r?\n/,1)[0],delim=",";
+  var c1=(first.match(/,/g)||[]).length,c2=(first.match(/;/g)||[]).length,c3=(first.match(/\t/g)||[]).length;
+  if(c2>c1&&c2>=c3) delim=";"; else if(c3>c1&&c3>c2) delim="\t";
+  var rows=[],row=[],cur="",q=false;
+  for(var i=0;i<text.length;i++){
+    var ch=text[i];
+    if(q){
+      if(ch==='"'){ if(text[i+1]==='"'){cur+='"';i++} else q=false }
+      else cur+=ch;
+    } else if(ch==='"') q=true;
+    else if(ch===delim){row.push(cur);cur=""}
+    else if(ch==="\n"||ch==="\r"){
+      if(ch==="\r"&&text[i+1]==="\n") i++;
+      row.push(cur);cur="";rows.push(row);row=[];
+      if(rows.length>MAX_ROWS+30) break;
+    } else cur+=ch;
+  }
+  if(cur!==""||row.length) {row.push(cur);rows.push(row)}
+  return rows.map(function(r){return r.map(function(c){c=c.trim();return c===""?null:c})});
+}
+
+/* قارئ xlsx مدمج: zip + XML بدون مكتبات خارجية */
+function u16(b,o){return b[o]|(b[o+1]<<8)}
+function u32(b,o){return (b[o]|(b[o+1]<<8)|(b[o+2]<<16)|(b[o+3]<<24))>>>0}
+function inflateRaw(u8){
+  var ds=new DecompressionStream("deflate-raw"),w=ds.writable.getWriter();
+  w.write(u8);w.close();
+  return new Response(ds.readable).arrayBuffer().then(function(b){return new Uint8Array(b)});
+}
+function zipEntries(b){
+  var e=-1;
+  for(var i=b.length-22;i>=Math.max(0,b.length-70000);i--){if(u32(b,i)===0x06054b50){e=i;break}}
+  if(e<0) throw new Error("zip");
+  var n=u16(b,e+10),off=u32(b,e+16),map={};
+  for(var k=0;k<n;k++){
+    if(u32(b,off)!==0x02014b50) break;
+    var method=u16(b,off+10),csz=u32(b,off+20),nl=u16(b,off+28),el=u16(b,off+30),cl=u16(b,off+32),lo=u32(b,off+42);
+    var name=new TextDecoder().decode(b.subarray(off+46,off+46+nl));
+    map[name]={method:method,csz:csz,lo:lo};
+    off+=46+nl+el+cl;
+  }
+  return map;
+}
+function zipRead(b,map,name){
+  var en=map[name]; if(!en) return Promise.resolve(null);
+  var lo=en.lo,start=lo+30+u16(b,lo+26)+u16(b,lo+28),data=b.subarray(start,start+en.csz);
+  var p=en.method===0?Promise.resolve(data):inflateRaw(data);
+  return p.then(function(u){return new TextDecoder("utf-8").decode(u)});
+}
+function xml(s){return new DOMParser().parseFromString(s,"text/xml")}
+function colIdx(ref){var m=/^([A-Z]+)/.exec(ref),s=m?m[1]:"A",n=0;for(var i=0;i<s.length;i++)n=n*26+s.charCodeAt(i)-64;return n-1}
+function rowIdx(ref){var m=/(\d+)$/.exec(ref);return m?+m[1]-1:0}
+function textOf(el){var t=el.getElementsByTagName("t"),s="";for(var i=0;i<t.length;i++)s+=t[i].textContent;return s}
+function openXlsx(buf){
+  var b=new Uint8Array(buf),map=zipEntries(b);
+  return Promise.all([zipRead(b,map,"xl/workbook.xml"),zipRead(b,map,"xl/_rels/workbook.xml.rels"),zipRead(b,map,"xl/sharedStrings.xml"),zipRead(b,map,"xl/styles.xml")]).then(function(r){
+    if(!r[0]||!r[1]) throw new Error("xlsx");
+    var wb=xml(r[0]),rels=xml(r[1]),rel={};
+    Array.prototype.forEach.call(rels.getElementsByTagName("Relationship"),function(x){rel[x.getAttribute("Id")]=x.getAttribute("Target")});
+    var names=[],paths={};
+    Array.prototype.forEach.call(wb.getElementsByTagName("sheet"),function(s){
+      var nm=s.getAttribute("name"),rid=s.getAttribute("r:id"),t=rel[rid]||"";
+      t=t.charAt(0)==="/"?t.slice(1):"xl/"+t.replace(/^\.\//,"");
+      names.push(nm);paths[nm]=t;
+    });
+    var sst=[];
+    if(r[2]) Array.prototype.forEach.call(xml(r[2]).getElementsByTagName("si"),function(si){sst.push(textOf(si))});
+    var dateXf={};
+    if(r[3]){
+      var st=xml(r[3]),custom={};
+      Array.prototype.forEach.call(st.getElementsByTagName("numFmt"),function(n){custom[n.getAttribute("numFmtId")]=n.getAttribute("formatCode")||""});
+      var cx=st.getElementsByTagName("cellXfs")[0];
+      if(cx) Array.prototype.forEach.call(cx.getElementsByTagName("xf"),function(xf,i){
+        var id=+xf.getAttribute("numFmtId"),code=custom[id],isD=false;
+        if(code!==undefined) isD=/[ymd]/i.test(code.replace(/"[^"]*"/g,"").replace(/\[[^\]]*\]/g,"").replace(/\\./g,"")) && !/^General$/i.test(code);
+        else isD=(id>=14&&id<=22)||(id>=27&&id<=36)||(id>=45&&id<=47)||(id>=50&&id<=58);
+        dateXf[i]=isD;
+      });
+    }
+    return {names:names,get:function(name){
+      return zipRead(b,map,paths[name]).then(function(s){
+        if(!s) return [];
+        var doc=xml(s),cells=doc.getElementsByTagName("c"),M=[],maxRows=MAX_ROWS+30;
+        for(var i=0;i<cells.length;i++){
+          var c=cells[i],ref=c.getAttribute("r"),ri=ref?rowIdx(ref):0,ci=ref?colIdx(ref):0;
+          if(ri>maxRows) break;
+          var t=c.getAttribute("t"),vEl=c.getElementsByTagName("v")[0],v=vEl?vEl.textContent:null,val=null;
+          if(t==="s") val=v===null?null:(sst[+v]!==undefined?sst[+v]:null);
+          else if(t==="inlineStr") val=textOf(c);
+          else if(t==="str") val=v;
+          else if(t==="b") val=v==="1"?"TRUE":"FALSE";
+          else if(t==="e") val=null;
+          else if(v!==null&&v!==""){
+            var num=Number(v);
+            val=dateXf[+c.getAttribute("s")]?serialToDate(num):num;
+          }
+          if(val===null) continue;
+          (M[ri]=M[ri]||[])[ci]=val;
+        }
+        for(var k=0;k<M.length;k++){
+          if(!M[k]){M[k]=[];continue}
+          for(var j=0;j<M[k].length;j++) if(M[k][j]===undefined) M[k][j]=null;
+        }
+        return M;
+      });
+    }};
+  });
+}
+
+/* مصفوفة → جدول: كشف صف العناوين، العنوان العلوي، الملاحظات السفلية، صفوف الإجمالي */
+var TOTAL_RE=/^\s*(total|grand total|sum|subtotal|overall|الإجمالي|الاجمالي|إجمالي|اجمالي|المجموع|مجموع|الكلي)\s*:?\s*$/i;
+function matrixToTable(M){
+  M=M.map(function(r){return (r||[]).map(function(c){if(typeof c==="string"){c=c.trim();return c===""?null:c}return c===undefined?null:c})});
+  var ne=M.map(function(r){return r.filter(function(c){return c!==null}).length});
+  var maxW=0;for(var i=0;i<Math.min(M.length,60);i++) if(ne[i]>maxW) maxW=ne[i];
+  if(!maxW) return null;
+  var h=0;
+  if(maxW>1){
+    h=-1;
+    for(var r=0;r<Math.min(M.length,30);r++){
+      if(ne[r]<Math.max(2,Math.ceil(maxW*0.6))) continue;
+      var cells=M[r].filter(function(c){return c!==null});
+      if(!cells.every(function(c){return typeof c==="string"&&toNum(c)===null})) continue;
+      if(r+1>=M.length) continue;
+      h=r;break;
+    }
+    if(h<0) h=0;
+  }
+  var title=null;
+  if(h>0){
+    var tt=[];for(var t=0;t<h;t++){var tc=M[t].filter(function(c){return c!==null});if(tc.length) tt.push(tc.join(" "))}
+    if(tt.length) title=tt.join(" - ");
+  }
+  var head=[],seen={},width=M[h].length;
+  for(var c=0;c<width;c++){
+    var nm=M[h][c]===null?("Column "+(c+1)):String(M[h][c]);
+    if(seen[nm]){seen[nm]++;nm=nm+" ("+seen[nm]+")"}else seen[nm]=1;
+    head.push(nm);
+  }
+  var footers=[],excluded=0,rows=[],truncated=false;
+  for(var i2=h+1;i2<M.length;i2++){
+    var row=M[i2],cnt=ne[i2];
+    if(cnt===0) continue;
+    if(maxW>=3&&cnt<=1){var tx=row.filter(function(c){return c!==null})[0];if(typeof tx==="string") footers.push(tx);continue}
+    var first=null;for(var k=0;k<row.length;k++){if(typeof row[k]==="string"){first=row[k];break}}
+    if(first!==null&&TOTAL_RE.test(first)){excluded++;continue}
+    if(rows.length>=MAX_ROWS){truncated=true;break}
+    var o={};
+    for(var cc=0;cc<head.length;cc++){var v=row[cc];o[head[cc]]=(v===undefined||v===null)?null:(typeof v==="boolean"?String(v):v)}
+    rows.push(o);
+  }
+  return {rows:rows,title:title,footers:footers,excluded:excluded,truncated:truncated};
+}
+
+function readFile(file){
+  hideMsg(); setBusy(true);
+  var isCsv=/\.(csv|txt)$/i.test(file.name),isXls=/\.xls$/i.test(file.name);
+  var fr=new FileReader();
+  fr.onerror=function(){setBusy(false);showErr("errRead")};
+  fr.onload=function(){
+    state.fileName=file.name;state.sample=false;state.book=null;
+    if(isCsv){
+      try{
+        $("sheetField").hidden=true;
+        var txt=new TextDecoder("utf-8").decode(fr.result);
+        if(/[\u0000-\u0008\u000E-\u001F]/.test(txt.slice(0,4000))){showErr("errOpen");return}
+        loadMatrix(parseCSV(txt),true);
+      }catch(e){showErr("errOpen")}
+      return;
+    }
+    var p;
+    if(isXls){
+      p=Promise.reject(new Error("xls"));
+    } else p=Promise.resolve().then(function(){return openXlsx(fr.result)});
+    p.catch(function(){
+      if(typeof XLSX==="undefined") throw new Error(isXls?"lib":"open");
+      var wb=XLSX.read(fr.result,{type:"array",cellDates:true});
+      return {names:wb.SheetNames,get:function(n){return Promise.resolve(XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,raw:true,defval:null}))}};
+    }).then(function(book){
+      state.book=book;
+      var sel=$("sheet");sel.innerHTML="";
+      book.names.forEach(function(n){var o=document.createElement("option");o.value=n;o.textContent=n;sel.appendChild(o)});
+      $("sheetField").hidden=book.names.length<2;
+      return loadSheet(true);
+    }).catch(function(e){
+      setBusy(false);
+      showErr(e&&e.message==="lib"?"errLib":"errOpen");
+    });
+  };
+  fr.readAsArrayBuffer(file);
+}
+function loadSheet(reset){
+  var name=$("sheet").value||state.book.names[0];
+  return state.book.get(name).then(function(M){loadMatrix(M,reset)});
+}
+function loadMatrix(M,reset){
+  var tb=matrixToTable(M);
+  state.fileNotes={title:tb?tb.title:null,footers:tb?tb.footers:[],excluded:tb?tb.excluded:0,truncated:tb?tb.truncated:false};
+  if(!tb||!tb.rows.length){setBusy(false);state.full=null;$("tools").hidden=true;$("report").innerHTML="";showErr("errEmpty");return}
+  if(!state.titleEdited){
+    $("title").value = tb.title && tb.title.length<=200 ? tb.title : L().reportOf(state.fileName.replace(/\.[^.]+$/,""));
+  }
+  loadRows(tb.rows,reset);
+}
+
+/* ================= تحليل ================= */
+var DATE_NAME=/date|time|day|month|تاريخ|يوم|شهر|وقت/i;
+var ID_NAME=/(^|[^a-z])(id|no|phone|mobile|tel|zip|postal|ssn|index|code)([^a-z]|$)|_id$|رقم|معرف|جوال|هاتف|رمز|هوية|الهوية|كود|بريد|تسلسل/i;
+var YEAR_NAME=/year|سنة|السنة|عام|العام/i;
+function analyze(rows){
+  rows=rows.filter(function(r){return Object.keys(r).some(function(k){return r[k]!==null&&r[k]!==""&&r[k]!==undefined})});
+  if(!rows.length) return null;
+  var cols=[],seen={};
+  rows.forEach(function(r){Object.keys(r).forEach(function(k){if(!seen[k]){seen[k]=1;cols.push(k)}})});
+  var info=[],notes={ids:[],ambig:[],hijri:[],serial:[]};
+  cols.forEach(function(c){
+    var raw=rows.map(function(r){var v=r[c];return (v===""||v===undefined)?null:v});
+    var nn=raw.filter(function(v){return v!==null});
+    if(!nn.length) return;
+    var name=String(c).trim();
+    if(nn.every(isDate)){info.push({name:name,type:"date",vals:raw});return}
+    if(nn.every(function(v){return typeof v==="string"})){
+      var pd=parseDateColumn(raw);
+      if(pd){
+        if(pd.ambiguous) notes.ambig.push(name);
+        if(pd.hijri) notes.hijri.push(name);
+        info.push({name:name,type:"date",vals:pd.vals});return;
+      }
+    }
+    var nums=raw.map(toNum),numN=nums.filter(function(v){return v!==null});
+    if(numN.length/nn.length>0.9){
+      var allInt=numN.every(function(v){return Math.floor(v)===v}),n=numN.length;
+      var uq={};numN.forEach(function(v){uq[v]=1});var ur=Object.keys(uq).length/n;
+      if(DATE_NAME.test(name)&&allInt&&numN.every(function(v){return v>=20000&&v<=80000})){
+        notes.serial.push(name);
+        info.push({name:name,type:"date",vals:nums.map(function(v){return v===null?null:serialToDate(v)})});return;
+      }
+      if(YEAR_NAME.test(name)&&allInt&&numN.every(function(v){return v>=1300&&v<=2100})){
+        info.push({name:name,type:"cat",vals:raw.map(function(v){return v===null?null:String(toNum(v))})});return;
+      }
+      var isId=false;
+      if(allInt){
+        if(ID_NAME.test(name)&&ur>0.9&&n>=5) isId=true;
+        else if(numN.every(function(v){return String(Math.abs(v)).length>=9})&&ur>0.9) isId=true;
+        else if(ur===1&&n>=10){var s=sortedCopy(numN),seq=true;for(var q=1;q<s.length;q++){if(s[q]-s[q-1]!==1){seq=false;break}}isId=seq}
+      }
+      if(isId){notes.ids.push(name);info.push({name:name,type:"id",vals:nums});return}
+      info.push({name:name,type:"num",vals:nums});return;
+    }
+    var strs=raw.map(function(v){return v===null?null:String(v).trim()});
+    var uniq={};strs.forEach(function(v){if(v!==null)uniq[v]=(uniq[v]||0)+1});
+    var u=Object.keys(uniq).length;
+    info.push({name:name,type:(u>1&&u<=Math.max(25,rows.length*0.2))?"cat":"text",vals:strs});
+  });
+  info.forEach(function(c){finishCol(c,rows.length)});
+  return {n:rows.length,cols:info,notes:notes,dups:null};
+}
+function finishCol(c,n){
+  var nn=0,uniq={};
+  for(var i=0;i<c.vals.length;i++){
+    var v=c.vals[i];
+    if(v!==null){nn++;var k=isDate(v)?v.getTime():v;uniq[k]=(uniq[k]||0)+1}
+  }
+  c.missing=n?(n-nn)/n:0;
+  c.unique=Object.keys(uniq).length;
+  if(c.type==="cat"||c.type==="text") c.counts=uniq;
+}
+function subset(A,idx){
+  var cols=A.cols.map(function(c){
+    var o={name:c.name,type:c.type,vals:idx.map(function(i){return c.vals[i]})};
+    finishCol(o,idx.length);return o;
+  });
+  return {n:idx.length,cols:cols,notes:A.notes,dups:null,idx:idx};
+}
+function dupCount(A){
+  if(A.dups!==null) return A.dups;
+  var seen={},d=0;
+  for(var i=0;i<A.n;i++){
+    var k="";
+    for(var j=0;j<A.cols.length;j++){var v=A.cols[j].vals[i];k+=(v===null?"":(isDate(v)?v.getTime():v))+"\u0001"}
+    if(seen[k]) d++; else seen[k]=1;
+  }
+  A.dups=d;return d;
+}
+function colByName(A,n){for(var i=0;i<A.cols.length;i++)if(A.cols[i].name===n)return A.cols[i];return null}
+
+/* ================= رسوم SVG ================= */
+function barChart(labels,values,title,useAccent){
+  var W=520,rowH=30,left=150,right=60,top=6,H=top+labels.length*rowH+6;
+  var vmax=maxOf(values)||1,fill=useAccent?"var(--accent)":"var(--brand)";
+  var desc=title+": "+labels.map(function(l,i){return l+" "+fmt(values[i])}).join("، ");
+  var s='<svg class="c" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(desc)+'">';
+  labels.forEach(function(l,i){
+    var y=top+i*rowH,bw=(W-left-right)*(Math.max(values[i],0)/vmax);
+    l=String(l); if(l.length>22) l=l.slice(0,21)+"…";
+    s+='<text class="t-lbl" x="'+(left-8)+'" y="'+(y+19)+'" text-anchor="end">'+esc(l)+'</text>'+
+       '<rect x="'+left+'" y="'+(y+4)+'" width="'+Math.max(bw,2).toFixed(1)+'" height="21" rx="4" fill="'+fill+'"/>'+
+       '<text class="t-val" x="'+(left+bw+6).toFixed(1)+'" y="'+(y+19)+'">'+fmt(values[i])+'</text>';
+  });
+  return s+'</svg>';
+}
+function groupedChart(labels,series,title){
+  var colors=["var(--brand)","var(--accent)","var(--muted)"],bh=14,gap=4,gH=series.length*(bh+gap)+12,left=150,right=64,top=28,W=520,H=top+labels.length*gH+4;
+  var vmax=1;series.forEach(function(s){vmax=Math.max(vmax,maxOf(s.values))});
+  var desc=title+": "+labels.map(function(l,i){return l+" ("+series.map(function(s){return s.name+" "+fmt(s.values[i])}).join(", ")+")"}).join("; ");
+  var o='<svg class="c" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(desc)+'">';
+  var lx=left;
+  series.forEach(function(s,k){
+    o+='<rect x="'+lx+'" y="6" width="12" height="12" rx="3" fill="'+colors[k]+'"/><text class="t-lbl" x="'+(lx+17)+'" y="16">'+esc(s.name.length>12?s.name.slice(0,11)+"…":s.name)+'</text>';
+    lx+=24+Math.min(s.name.length,12)*7.5;
+  });
+  labels.forEach(function(l,i){
+    var y0=top+i*gH;l=String(l);if(l.length>22) l=l.slice(0,21)+"…";
+    o+='<text class="t-lbl" x="'+(left-8)+'" y="'+(y0+gH/2)+'" text-anchor="end">'+esc(l)+'</text>';
+    series.forEach(function(s,k){
+      var y=y0+k*(bh+gap),w=(W-left-right)*(Math.max(s.values[i],0)/vmax);
+      o+='<rect x="'+left+'" y="'+y+'" width="'+Math.max(w,2).toFixed(1)+'" height="'+bh+'" rx="3" fill="'+colors[k]+'"/><text class="t-val" x="'+(left+w+6).toFixed(1)+'" y="'+(y+bh-3)+'">'+fmt(s.values[i])+'</text>';
+    });
+  });
+  return o+'</svg>';
+}
+function histChart(vals,title){
+  var v=vals.filter(function(x){return x!==null}),mn=minOf(v),mx=maxOf(v);
+  var bins=10,cnt=new Array(bins).fill(0),span=(mx-mn)||1;
+  v.forEach(function(x){cnt[Math.min(bins-1,Math.floor((x-mn)/span*bins))]++});
+  var W=520,H=190,pl=10,pb=30,pt=20,cw=(W-pl*2)/bins,cm=maxOf(cnt)||1;
+  var s='<svg class="c" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(title+": "+fmt(mn)+" – "+fmt(mx)+", "+cnt.map(fmt).join(" / "))+'">';
+  s+='<line class="grid-line" x1="'+pl+'" x2="'+(W-pl)+'" y1="'+(H-pb)+'" y2="'+(H-pb)+'"/>';
+  cnt.forEach(function(c,i){
+    var bh=(H-pb-pt)*(c/cm),x=pl+i*cw;
+    s+='<rect x="'+(x+2).toFixed(1)+'" y="'+(H-pb-bh).toFixed(1)+'" width="'+(cw-4).toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="3" fill="var(--accent)"/>';
+    if(c) s+='<text class="t-val" x="'+(x+cw/2).toFixed(1)+'" y="'+(H-pb-bh-4).toFixed(1)+'" text-anchor="middle">'+fmt(c)+'</text>';
+  });
+  s+='<text class="t-val" x="'+pl+'" y="'+(H-10)+'">'+fmt(mn)+'</text><text class="t-val" x="'+(W-pl)+'" y="'+(H-10)+'" text-anchor="end">'+fmt(mx)+'</text>';
+  return s+'</svg>';
+}
+function lineChart(keys,vals,title){
+  var W=520,H=210,pl=14,pr=14,pt=24,pb=30,n=vals.length;
+  var mn=minOf(vals),mx=maxOf(vals),rg=(mx-mn)||1;
+  var pts=vals.map(function(v,i){return [pl+(W-pl-pr)*(i/Math.max(n-1,1)),pt+(H-pt-pb)*(1-(v-mn)/rg)]});
+  var s='<svg class="c" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(title+": "+dg(keys[0])+" → "+dg(keys[n-1])+", "+fmt(vals[0])+" → "+fmt(vals[n-1]))+'">';
+  s+='<line class="grid-line" x1="'+pl+'" x2="'+(W-pr)+'" y1="'+(H-pb)+'" y2="'+(H-pb)+'"/>';
+  var area="M"+pts[0][0].toFixed(1)+","+(H-pb)+" "+pts.map(function(p){return "L"+p[0].toFixed(1)+","+p[1].toFixed(1)}).join(" ")+" L"+pts[n-1][0].toFixed(1)+","+(H-pb)+" Z";
+  s+='<path d="'+area+'" fill="var(--brand)" opacity=".12"/>';
+  s+='<polyline fill="none" stroke="var(--brand)" stroke-width="2.5" stroke-linejoin="round" points="'+pts.map(function(p){return p[0].toFixed(1)+","+p[1].toFixed(1)}).join(" ")+'"/>';
+  var last=pts[n-1];
+  s+='<circle cx="'+last[0].toFixed(1)+'" cy="'+last[1].toFixed(1)+'" r="5" fill="var(--accent)"/>';
+  s+='<text class="t-val" x="'+Math.min(last[0],W-pr).toFixed(1)+'" y="'+Math.max(last[1]-10,12).toFixed(1)+'" text-anchor="end">'+fmt(vals[n-1])+'</text>';
+  s+='<text class="t-val" x="'+pl+'" y="'+(H-10)+'">'+esc(dg(keys[0]))+'</text><text class="t-val" x="'+(W-pr)+'" y="'+(H-10)+'" text-anchor="end">'+esc(dg(keys[n-1]))+'</text>';
+  return s+'</svg>';
+}
+function heatmap(nums,A){
+  var cols=nums.slice(0,6),n=cols.length,cell=62,left=120,top=24,W=left+n*cell+8,H=top+n*cell+8;
+  var s='<svg class="c" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(L().hCorr)+'" style="max-width:'+Math.max(W,320)+'px">';
+  cols.forEach(function(a,j){
+    var l=a.name; if(l.length>9) l=l.slice(0,8)+"…";
+    s+='<text class="t-val" x="'+(left+j*cell+cell/2)+'" y="14" text-anchor="middle">'+esc(l)+'</text>';
+  });
+  cols.forEach(function(a,i){
+    var l=a.name; if(l.length>16) l=l.slice(0,15)+"…";
+    s+='<text class="t-lbl" x="'+(left-8)+'" y="'+(top+i*cell+cell/2+4)+'" text-anchor="end">'+esc(l)+'</text>';
+    cols.forEach(function(b,j){
+      var X=[],Y=[];
+      for(var k=0;k<A.n;k++){if(a.vals[k]!==null&&b.vals[k]!==null){X.push(a.vals[k]);Y.push(b.vals[k])}}
+      var r=(i===j)?1:(X.length>2?corr(X,Y):0),al=0.12+0.5*Math.abs(r),col=r>=0?"var(--brand)":"var(--warn)";
+      s+='<rect x="'+(left+j*cell+2)+'" y="'+(top+i*cell+2)+'" width="'+(cell-4)+'" height="'+(cell-4)+'" rx="8" fill="'+col+'" fill-opacity="'+al.toFixed(2)+'"/>'+
+         '<text class="t-cell" x="'+(left+j*cell+cell/2)+'" y="'+(top+i*cell+cell/2+4)+'" text-anchor="middle">'+dg(r.toFixed(2))+'</text>';
+    });
+  });
+  return s+'</svg>';
+}
+
+/* ================= بناء التقرير ================= */
+function setBusy(b){var r=$("report");if(b){r.innerHTML='<div class="note" data-busy="1">'+esc(L().loading)+'</div>'}}
+function pickOpts(full){
+  var nums=full.cols.filter(function(c){return c.type==="num"}),
+      cats=full.cols.filter(function(c){return c.type==="cat"}),
+      dates=full.cols.filter(function(c){return c.type==="date"}),
+      o=state.opts;
+  function ok(list,v){return list.some(function(c){return c.name===v})}
+  if(!ok(nums,o.metric)){
+    var pref=nums.filter(function(c){return /sales|revenue|amount|total|price|income|profit|cost|مبيعات|ايراد|إيراد|مبلغ|سعر|دخل|ربح|تكلفة|اجمالي|إجمالي/i.test(c.name)})[0];
+    o.metric=pref?pref.name:(nums.length?nums[0].name:"");
+  }
+  if(!ok(cats,o.group)) o.group=cats.length?cats[0].name:"";
+  if(!ok(dates,o.date)) o.date=dates.length?dates[0].name:"";
+  if(o.fcol && !ok(cats,o.fcol)){o.fcol="";o.fvals=[]}
+}
+function fillSelect(sel,items,cur,withNone){
+  var h=withNone?'<option value="">'+esc(L().none)+'</option>':"";
+  items.forEach(function(it){h+='<option value="'+esc(it.v)+'">'+esc(it.t)+'</option>'});
+  sel.innerHTML=h; sel.value=cur;
+  if(sel.value!==cur && !withNone && items.length) sel.value=items[0].v;
+}
+function populateTools(){
+  var full=state.full; if(!full){$("tools").hidden=true;return}
+  var o=state.opts,
+      nums=full.cols.filter(function(c){return c.type==="num"}),
+      cats=full.cols.filter(function(c){return c.type==="cat"}),
+      dates=full.cols.filter(function(c){return c.type==="date"});
+  $("tools").hidden = !(nums.length||cats.length||dates.length);
+  function it(c){return {v:c.name,t:c.name}}
+  fillSelect($("metric"),nums.map(it),o.metric); $("fMetric").hidden=!nums.length;
+  fillSelect($("group"),cats.map(it),o.group); $("fGroup").hidden=!cats.length;
+  fillSelect($("dateCol"),dates.map(it),o.date); $("fDate").hidden=dates.length<2;
+  fillSelect($("agg"),[{v:"sum",t:L().aggSum},{v:"avg",t:L().aggAvg},{v:"count",t:L().aggCount}],o.agg);
+  $("fFcol").hidden=!cats.length;
+  fillSelect($("fcol"),cats.map(it),o.fcol,true);
+  renderChips();
+}
+function renderChips(){
+  var full=state.full,o=state.opts,fc=o.fcol?colByName(full,o.fcol):null,box=$("chips");
+  $("fFval").hidden=!fc; box.innerHTML="";
+  if(!fc) return;
+  Object.keys(fc.counts).sort().forEach(function(v){
+    var b=document.createElement("button");
+    b.type="button";b.className="chip";b.textContent=v;
+    b.setAttribute("aria-pressed",o.fvals.indexOf(v)>=0?"true":"false");
+    b.addEventListener("click",function(){
+      var i=o.fvals.indexOf(v);
+      if(i>=0) o.fvals.splice(i,1); else o.fvals.push(v);
+      b.setAttribute("aria-pressed",i>=0?"false":"true");render();
+    });
+    box.appendChild(b);
+  });
+  if(o.fvals.length){
+    var c=document.createElement("button");
+    c.type="button";c.className="chip";c.textContent=L().clear;
+    c.addEventListener("click",function(){o.fvals=[];renderChips();render()});
+    box.appendChild(c);
+  }
+}
+function loadRows(rows,reset){
+  hideMsg();
+  var full=analyze(rows);
+  if(!full){state.full=null;$("tools").hidden=true;$("report").innerHTML="";showErr("errEmpty");return}
+  state.full=full;
+  if(reset){state.opts.fcol="";state.opts.fvals=[]}
+  pickOpts(full); populateTools(); render();
+}
+
+function render(){
+  var full=state.full; if(!full) return;
+  var o=state.opts, t=L(), idx=[];
+  var fc=o.fcol?colByName(full,o.fcol):null;
+  for(var i=0;i<full.n;i++){ if(!fc||!o.fvals.length||o.fvals.indexOf(fc.vals[i])>=0) idx.push(i) }
+  var A=(idx.length===full.n)?full:subset(full,idx);
+  var nums=A.cols.filter(function(c){return c.type==="num"}),
+      cats=A.cols.filter(function(c){return c.type==="cat"}),
+      dates=A.cols.filter(function(c){return c.type==="date"});
+  var M=colByName(A,o.metric), G=colByName(A,o.group), D=colByName(A,o.date);
+  var agg=o.agg, an=aggName();
+  var cells=A.n*A.cols.length, miss=0;
+  A.cols.forEach(function(c){miss+=c.missing*A.n});
+
+  /* شهري */
+  var monthly=null, mk=null;
+  if(M && D){
+    var buckets={};
+    for(var j=0;j<A.n;j++){
+      if(D.vals[j] && (M.vals[j]!==null||agg==="count")){
+        var k=monthKey(D.vals[j]);(buckets[k]=buckets[k]||[]).push(M.vals[j]===null?1:M.vals[j]);
+      }
+    }
+    mk=Object.keys(buckets).sort();
+    monthly=mk.map(function(k){return aggVals(buckets[k],agg)});
+  }
+
+  /* KPI */
+  var kpis=[[t.kRows,fmt(A.n),""],[t.kCols,fmt(A.cols.length),""]];
+  if(M){
+    var allv=M.vals.filter(function(x){return x!==null}),main=aggVals(allv,agg),sub="";
+    if(monthly&&monthly.length>1){
+      var a2=monthly[monthly.length-1],b2=monthly[monthly.length-2];
+      if(b2){var ch=(a2-b2)/Math.abs(b2)*100;sub='<small class="'+(ch>=0?"up":"down")+'">'+(ch>=0?"▲ ":"▼ ")+fmt(Math.abs(ch))+'% '+esc(t.vsPrev)+'</small>'}
+    }
+    kpis.unshift([t.kTotal(M.name,an),fmt(main),sub]);
+  }
+  kpis.push([t.kMissing,fmt(cells?miss/cells*100:0)+"%",""]);
+
+  /* تجميع حسب الفئة (مرة واحدة ويُستخدم للرسم والملاحظات) */
+  var res=null,ks=null;
+  if(M&&G){
+    var gb={};
+    for(var p=0;p<A.n;p++){if(G.vals[p]!==null&&(M.vals[p]!==null||agg==="count")){(gb[G.vals[p]]=gb[G.vals[p]]||[]).push(M.vals[p]===null?1:M.vals[p])}}
+    res={};Object.keys(gb).forEach(function(k){res[k]=aggVals(gb[k],agg)});
+    ks=Object.keys(res).sort(function(a,b){return res[b]-res[a]});
+  }
+
+  /* ملاحظات */
+  var ins=[];
+  nums.slice(0,3).forEach(function(c){
+    var v=c.vals.filter(function(x){return x!==null}); if(!v.length) return;
+    var mn=mean(v),md=median(v);
+    ins.push({t:t.iStats(c.name,fmt(mn),fmt(md),fmt(maxOf(v)),fmt(minOf(v)))});
+    if(Math.abs(mn-md)>0.2*(Math.abs(md)||1)) ins.push({t:t.iSkew(c.name),warn:true});
+  });
+  if(ks&&ks.length>1){
+    var lead=ks[0];
+    if(agg==="avg"){
+      var ov=mean(M.vals.filter(function(x){return x!==null}));
+      if(ov) ins.push({t:t.iLeadAvg(G.name,lead,M.name,fmt(res[lead]),fmt((res[lead]-ov)/Math.abs(ov)*100))});
+    } else {
+      var tot=ks.reduce(function(s,k){return s+res[k]},0);
+      if(tot>0) ins.push({t:t.iLeadShare(G.name,lead,an,M.name,fmt(res[lead]/tot*100))});
+    }
+  }
+  cats.filter(function(c){return c.unique>1&&c.name!==o.fcol}).slice(0,2).forEach(function(c){
+    var e=Object.keys(c.counts).sort(function(a,b){return c.counts[b]-c.counts[a]})[0],nn=c.vals.filter(function(v){return v!==null}).length;
+    ins.push({t:t.iTop(c.name,e,fmt(c.counts[e]/nn*100))});
+  });
+  if(monthly&&monthly.length>2){
+    var la=monthly[monthly.length-1],pr=monthly[monthly.length-2];
+    if(pr){var cp=(la-pr)/Math.abs(pr)*100;ins.push({t:t.iTrend(M.name,fmt(Math.abs(cp)),cp>=0)})}
+    if(monthly.length>=6){
+      var half=Math.floor(monthly.length/2),f=mean(monthly.slice(0,half)),s2=mean(monthly.slice(monthly.length-half));
+      if(f){var hp=(s2-f)/Math.abs(f)*100;if(Math.abs(hp)>=5) ins.push({t:t.iHalf(M.name,fmt(Math.abs(hp)),hp>=0)})}
+    }
+    var bi=0,wi=0;monthly.forEach(function(v,ix){if(v>monthly[bi])bi=ix;if(v<monthly[wi])wi=ix});
+    if(bi!==wi) ins.push({t:t.iBestWorst(M.name,dg(mk[bi]),fmt(monthly[bi]),dg(mk[wi]),fmt(monthly[wi]))});
+  }
+  var best=null,top6=nums.slice(0,6);
+  for(var x=0;x<top6.length;x++)for(var y=x+1;y<top6.length;y++){
+    var X=[],Y=[];for(var z=0;z<A.n;z++){if(top6[x].vals[z]!==null&&top6[y].vals[z]!==null){X.push(top6[x].vals[z]);Y.push(top6[y].vals[z])}}
+    if(X.length>=10){var r=corr(X,Y);if(corrSig(r,X.length)&&Math.abs(r)>=0.5&&(!best||Math.abs(r)>Math.abs(best.r)))best={r:r,a:top6[x].name,b:top6[y].name,n:X.length}}
+  }
+  if(best) ins.push({t:t.iCorr(best.a,best.b,dg(best.r.toFixed(2)),Math.abs(best.r)>=0.7,fmt(best.n))});
+  nums.forEach(function(c){var oc=outliers(c.vals.filter(function(v){return v!==null}));if(oc) ins.push({t:t.iOut(c.name,fmt(oc)),warn:true})});
+
+  /* جودة + ملاحظات */
+  var qual=[];
+  A.cols.filter(function(c){return c.missing>0}).sort(function(a,b){return b.missing-a.missing}).forEach(function(c){
+    qual.push({t:t.qMiss(c.name,fmt(c.missing*100)),warn:c.missing>0.2});
+  });
+  var dd=dupCount(A);
+  if(dd) qual.push({t:t.qDups(fmt(dd)),warn:true});
+  var N=A.notes,fn=state.fileNotes;
+  if(!state.sample&&fn.excluded) qual.push({t:t.nTotals(fmt(fn.excluded)),info:true});
+  if(N.ids.length) qual.push({t:t.nIds(N.ids.join("، ")),info:true});
+  N.ambig.forEach(function(n){qual.push({t:t.nAmbig(n),warn:true})});
+  N.hijri.forEach(function(n){qual.push({t:t.nHijri(n),info:true})});
+  N.serial.forEach(function(n){qual.push({t:t.nSerial(n),info:true})});
+  if(!state.sample&&fn.truncated) qual.push({t:t.nTrunc(fmt(MAX_ROWS)),warn:true});
+  if(!qual.length) qual.push({t:t.qClean});
+  if(state.lang==="en") qual.forEach(function(x){x.t=x.t.replace(/،/g,",")});
+
+  /* رسوم */
+  var charts=[];
+  A.vals_nonnull_G=G?G.vals.filter(function(v){return v!==null}).length:0;
+  var cmpCols=nums.filter(function(c){return !TOTAL_RE.test(c.name)});
+  if(cmpCols.length<2) cmpCols=nums;
+  var compare=G&&cmpCols.length>=2&&A.n<=30&&G.unique===A.vals_nonnull_G;
+  if(compare){
+    var order=[];for(var q2=0;q2<A.n;q2++) if(G.vals[q2]!==null) order.push(q2);
+    var ser=cmpCols.slice(0,3).map(function(c){return {name:c.name,values:order.map(function(i){return c.vals[i]===null?0:c.vals[i]})}});
+    charts.push('<div class="chart" style="grid-column:1/-1"><h3>'+esc(t.chCompare(G.name))+'</h3>'+groupedChart(order.map(function(i){return G.vals[i]}),ser,G.name)+'</div>');
+  } else if(ks&&ks.length){var kk=ks.slice(0,8);charts.push('<div class="chart"><h3>'+esc(t.chGroup(an,M.name,G.name))+'</h3>'+barChart(kk,kk.map(function(k){return res[k]}),M.name,true)+'</div>')}
+  if(monthly&&monthly.length>1) charts.push('<div class="chart"><h3>'+esc(t.chTime(an,M.name))+'</h3>'+lineChart(mk,monthly,M.name)+'</div>');
+  var shown={};
+  if(M&&A.n>=15){charts.push('<div class="chart"><h3>'+esc(t.chHist(M.name))+'</h3>'+histChart(M.vals,M.name)+'</div>');shown[M.name]=1}
+  (A.n>=15?nums.filter(function(c){return !shown[c.name]}).slice(0,1):[]).forEach(function(c){
+    charts.push('<div class="chart"><h3>'+esc(t.chHist(c.name))+'</h3>'+histChart(c.vals,c.name)+'</div>');
+  });
+  cats.filter(function(c){return (!G||c.name!==G.name)&&c.name!==o.fcol&&c.unique>1}).slice(0,2).concat(G&&!M&&G.unique>1?[G]:[]).forEach(function(c){
+    var e=Object.keys(c.counts).sort(function(a,b){return c.counts[b]-c.counts[a]}).slice(0,8);
+    charts.push('<div class="chart"><h3>'+esc(t.chTopCat(c.name))+'</h3>'+barChart(e,e.map(function(k){return c.counts[k]}),c.name)+'</div>');
+  });
+
+  /* جداول */
+  var typeName={num:t.tNum,cat:t.tCat,date:t.tDate,text:t.tText,id:t.tId};
+  var tsv=[[t.cName,t.cCount,t.cMean,t.cMin,t.cMed,t.cMax,t.cOut].join("\t")];
+  var statRows=nums.map(function(c){
+    var v=c.vals.filter(function(x){return x!==null});if(!v.length) return "";
+    var oc=outliers(v);
+    tsv.push([c.name,v.length,+mean(v).toFixed(2),minOf(v),median(v),maxOf(v),oc].join("\t"));
+    return '<tr><td>'+esc(c.name)+'</td><td>'+fmt(v.length)+'</td><td>'+fmt(mean(v))+'</td><td>'+fmt(minOf(v))+'</td><td>'+fmt(median(v))+'</td><td>'+fmt(maxOf(v))+'</td><td>'+fmt(oc)+'</td></tr>';
+  }).join("");
+  var statsT=nums.length?'<section class="panel sec"><h2>'+esc(t.hStats)+'</h2><div class="scroll"><table><thead><tr><th>'+t.cName+'</th><th>'+t.cCount+'</th><th>'+t.cMean+'</th><th>'+t.cMin+'</th><th>'+t.cMed+'</th><th>'+t.cMax+'</th><th>'+t.cOut+'</th></tr></thead><tbody>'+statRows+'</tbody></table></div></section>':'';
+  state.statsTsv=nums.length?tsv.join("\n"):"";
+  var colsT='<section class="panel sec"><h2>'+esc(t.hCols)+'</h2><div class="scroll"><table><thead><tr><th>'+t.cName+'</th><th>'+t.cType+'</th><th>'+t.cMiss+'</th><th>'+t.cUniq+'</th></tr></thead><tbody>'+
+    A.cols.map(function(c){return '<tr><td>'+esc(c.name)+'</td><td><span class="pill">'+typeName[c.type]+'</span></td><td>'+fmt(c.missing*100)+'%</td><td>'+fmt(c.unique)+'</td></tr>'}).join("")+'</tbody></table></div></section>';
+  var pc=A.cols.slice(0,8);
+  function cellStr(c,i){var v=c.vals[i];if(v===null)return "";if(isDate(v))return dg(dayStr(v));if(typeof v==="number")return fmt(v);return v}
+  var prev='<section class="panel sec"><h2>'+esc(t.hPreview)+'</h2><div class="scroll"><table><thead><tr>'+pc.map(function(c){return '<th>'+esc(c.name)+'</th>'}).join("")+'</tr></thead><tbody>'+
+    [0,1,2,3,4,5,6,7].filter(function(i){return i<A.n}).map(function(i){return '<tr>'+pc.map(function(c){return '<td>'+esc(cellStr(c,i))+'</td>'}).join("")+'</tr>'}).join("")+'</tbody></table></div></section>';
+  var fileSec=(!state.sample&&fn.footers.length)?'<section class="panel sec"><h2>'+esc(t.hFile)+'</h2><ul>'+fn.footers.map(function(f){return '<li class="info">'+esc(f)+'</li>'}).join("")+'</ul></section>':'';
+
+  var li=function(a){return a.map(function(x){return '<li'+(x.warn?' class="warn"':(x.info?' class="info"':''))+'>'+esc(x.t)+'</li>'}).join("")};
+  var today=new Date().toLocaleDateString(t.dateLocale+(state.lang==="ar"&&state.digits==="ar"?"arab":"latn"),{year:"numeric",month:"long",day:"numeric"});
+  var src=state.sample?t.sampleSrc:state.fileName;
+  var ttl=$("title").value||t.reportOf("");
+  var filt=(fc&&o.fvals.length)?' · '+esc(o.fcol)+' = '+esc(o.fvals.join(state.lang==="ar"?"، ":", ")):'';
+
+  var extras='<button class="btn ghost small" id="copyBtn" type="button">'+esc(t.copy)+'</button>'+
+    (state.statsTsv?'<button class="btn ghost small" id="copyTblBtn" type="button">'+esc(t.copyTable)+'</button>':'')+
+    (STANDALONE?'<button class="btn ghost small" id="printBtn" type="button">'+esc(t.print)+'</button>':'')+
+    ((STANDALONE||DL)?'<button class="btn ghost small" id="dlHtmlBtn" type="button">'+esc(t.dlHtml)+'</button><button class="btn ghost small" id="dlMdBtn" type="button">'+esc(t.dlSummary)+'</button><button class="btn ghost small" id="dlCsvBtn" type="button">'+esc(t.dlData)+'</button>':'');
+
+  $("report").innerHTML='<div class="stack">'+
+    (state.sample?'<div class="note noprint">'+esc(t.sampleNote)+'</div>':'')+
+    '<div class="hero"><h2 id="rTitle"'+(ttl.length>70?' class="long"':'')+'>'+esc(ttl)+'</h2><p>'+esc(t.source)+': '+esc(src)+filt+' · '+esc(today)+'</p></div>'+
+    '<div class="kpis">'+kpis.map(function(k){return '<div class="kpi"><b>'+k[1]+'</b><span>'+esc(k[0])+'</span>'+k[2]+'</div>'}).join("")+'</div>'+
+    '<section class="panel sec"><h2>'+esc(t.hNotes)+'</h2><ul>'+(li(ins)||'<li>'+esc(t.noNumeric)+'</li>')+'</ul>'+
+      '<div class="row-actions noprint">'+extras+'<span class="toast" id="toast" role="status"></span></div></section>'+
+    (charts.length?'<section class="panel sec chartsec"><h2>'+esc(t.hCharts)+'</h2><div class="charts">'+charts.join("")+'</div></section>':'')+
+    (nums.length>1&&A.n>=10?'<section class="panel sec"><h2>'+esc(t.hCorr)+'</h2><div class="scroll">'+heatmap(nums,A)+'</div></section>':'')+
+    statsT+colsT+prev+
+    '<section class="panel sec"><h2>'+esc(t.hQuality)+'</h2><ul>'+li(qual)+'</ul></section>'+fileSec+'</div>';
+
+  state.summary="# "+ttl+"\n\n"+ins.concat(qual).map(function(x){return "- "+x.t}).join("\n");
+  /* CSV للبيانات المفلترة */
+  var csvRows=[A.cols.map(function(c){return csvCell(c.name)}).join(",")];
+  for(var r2=0;r2<A.n;r2++){csvRows.push(A.cols.map(function(c){var v=c.vals[r2];return csvCell(v===null?"":(isDate(v)?dayStr(v):v))}).join(","))}
+  state.dataCsv="﻿"+csvRows.join("\n");
+
+  $("copyBtn").addEventListener("click",function(){copyText(state.summary)});
+  if($("copyTblBtn")) $("copyTblBtn").addEventListener("click",function(){copyText(state.statsTsv)});
+  if(STANDALONE) $("printBtn").addEventListener("click",function(){window.print()});
+  if(STANDALONE||DL){
+    $("dlHtmlBtn").addEventListener("click",function(){saveFile(reportHtml(),"bayanos-report.html","text/html")});
+    $("dlMdBtn").addEventListener("click",function(){saveFile(state.summary,"bayanos-summary.md","text/markdown")});
+    $("dlCsvBtn").addEventListener("click",function(){saveFile(state.dataCsv,"bayanos-data.csv","text/csv")});
+  }
+}
+function csvCell(v){v=String(v);return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function reportHtml(){
+  var css=Array.prototype.map.call(document.querySelectorAll("style"),function(x){return x.textContent}).join("\n");
+  var c=$("report").cloneNode(true);
+  Array.prototype.forEach.call(c.querySelectorAll(".noprint"),function(n){n.parentNode.removeChild(n)});
+  var h=document.documentElement;
+  return '<!doctype html><html lang="'+h.lang+'" dir="'+h.dir+'"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc($("title").value||"Bayanos")+'</title><style>'+css+'</style></head><body><div class="wrap">'+c.innerHTML+'</div></body></html>';
+}
+function saveFile(text,name,type){
+  var t=$("toast");
+  if(STANDALONE){saveBlob(text,name,type);return}
+  if(!DL) return;
+  DL.save({filename:name,data:text}).then(function(){if(t)t.textContent=L().saved},function(e){if(t&&e&&e.code!=="declined")t.textContent=L().dlFail});
+}
+function saveBlob(text,name,type){
+  var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:type+";charset=utf-8"}));a.download=name;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+function copyText(txt){
+  var t=$("toast");
+  function ok(){t.textContent=L().copied}
+  function fallback(){
+    var ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand("copy");ok()}catch(e){t.textContent=L().copyFail}
+    document.body.removeChild(ta);
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok,fallback)}else fallback();
+}
+function showErr(key){var r=$("report");if(r.querySelector("[data-busy]")) r.innerHTML="";var e=$("msg");e.hidden=false;e.className="err";e.setAttribute("data-key",key);e.textContent=L()[key]}
+function hideMsg(){var e=$("msg");e.hidden=true;e.removeAttribute("data-key")}
+
+/* ================= بيانات تجريبية ================= */
+function sampleRows(){
+  var S=L().sample,seed=7;
+  function rnd(){seed=(seed*1664525+1013904223)%4294967296;return seed/4294967296}
+  var prices=[45,30,60,80,120],pw=[.3,.2,.2,.15,.15],cw=[.45,.3,.15,.1],rows=[];
+  function pick(w){var r=rnd(),a=0;for(var i=0;i<w.length;i++){a+=w[i];if(r<=a)return i}return w.length-1}
+  for(var i=0;i<240;i++){
+    var p=pick(pw),c=pick(cw),q=1+Math.floor(rnd()*8),row={};
+    row[S.date]=new Date(2025,0,1+i*2);
+    row[S.product]=S.products[p];
+    row[S.city]=rnd()<0.05?null:S.cities[c];
+    row[S.qty]=q;
+    row[S.sales]=Math.round(q*prices[p]+(rnd()-0.5)*30);
+    rows.push(row);
+  }
+  rows.push(rows[0],rows[1],rows[2]);
+  return rows;
+}
+function loadSample(){
+  state.sample=true;state.book=null;state.fileName="";state.fileNotes={title:null,footers:[],excluded:0,truncated:false};
+  $("sheetField").hidden=true;hideMsg();
+  if(!state.titleEdited) $("title").value=L().defTitle;
+  state.opts={metric:"",group:"",date:"",agg:"sum",fcol:"",fvals:[]};
+  loadRows(sampleRows(),true);
+}
+
+/* ================= اللغة والأرقام ================= */
+function applyLang(){
+  var t=L(),h=document.documentElement;
+  h.lang=state.lang; h.dir=t.dir;
+  document.querySelectorAll("[data-i18n]").forEach(function(el){el.textContent=t[el.getAttribute("data-i18n")]});
+  $("brandName").textContent=state.lang==="ar"?"بيانوس":"Bayanos";
+  document.title=state.lang==="ar"?"بيانوس Bayanos":"Bayanos";
+  $("langBtn").textContent=t.other;
+  $("langBtn").setAttribute("aria-label",state.lang==="ar"?"Switch to English":"التبديل إلى العربية");
+}
+function refresh(){
+  var key=$("msg").getAttribute("data-key");
+  if(key) $("msg").textContent=L()[key];
+  if(state.sample){ loadSample() }
+  else{
+    if(!state.titleEdited && state.fileName && !state.fileNotes.title) $("title").value=L().reportOf(state.fileName.replace(/\.[^.]+$/,""));
+    populateTools(); render();
+  }
+}
+function setLang(l){
+  state.lang=l;
+  try{localStorage.setItem("bayanos-lang",l)}catch(e){}
+  try{history.replaceState(null,"","#"+l)}catch(e){}
+  applyLang();refresh();
+}
+/* ================= أحداث ================= */
+var drop=$("drop"),fileIn=$("file");
+drop.addEventListener("click",function(){fileIn.click()});
+drop.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();fileIn.click()}});
+fileIn.addEventListener("change",function(){if(fileIn.files[0]) readFile(fileIn.files[0]);fileIn.value=""});
+["dragenter","dragover"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.classList.add("over")})});
+["dragleave","drop"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();drop.classList.remove("over")})});
+drop.addEventListener("drop",function(e){var f=e.dataTransfer.files[0];if(f) readFile(f)});
+$("sheet").addEventListener("change",function(){if(state.book){setBusy(true);loadSheet(true)}});
+$("title").addEventListener("input",function(){
+  state.titleEdited=true;
+  var r=$("rTitle");if(r){r.textContent=$("title").value||"";r.className=($("title").value||"").length>70?"long":""}
+  state.summary=state.summary.replace(/^# [^\n]*/,"# "+$("title").value);
+});
+$("sampleBtn").addEventListener("click",function(){state.titleEdited=false;loadSample()});
+$("langBtn").addEventListener("click",function(){setLang(state.lang==="ar"?"en":"ar")});
+[["metric","metric"],["group","group"],["dateCol","date"],["agg","agg"]].forEach(function(p){
+  $(p[0]).addEventListener("change",function(){state.opts[p[1]]=this.value;render()});
+});
+$("fcol").addEventListener("change",function(){state.opts.fcol=this.value;state.opts.fvals=[];renderChips();render()});
+
+var initial="ar",dig="la";
+try{var sv=localStorage.getItem("bayanos-lang");if(sv==="ar"||sv==="en")initial=sv}catch(e){}
+if(location.hash==="#en") initial="en"; else if(location.hash==="#ar") initial="ar";
+state.lang=initial;state.digits=dig;applyLang();loadSample();
+try{
+  if(!STANDALONE&&window.claude&&window.claude.use){
+    window.claude.use("downloads").then(function(d){if(d){DL=d;if(state.full) render()}},function(){});
+  }
+}catch(e){}
+
+})();
+</script>
+
+</body></html>
