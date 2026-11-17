@@ -3,7 +3,7 @@
 **أداة تحوّل ملف Excel أو CSV إلى تقرير منسّق خلال ثوانٍ، بالعربي والإنجليزي.**
 **Turn an Excel or CSV file into a finished report in seconds, in Arabic and English.**
 
-🔗 **التجربة | Live demo:** https://YOUR-USERNAME.github.io/bayanos
+🔗 **التجربة | Live demo:** https://lama12334556.github.io/bayanos
 
 ## المميزات | Features
 - مؤشرات رئيسية واتجاهات ورسوم بيانية تلقائية | Automatic KPIs, trends and charts
