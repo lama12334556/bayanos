@@ -802,6 +802,9 @@ function heatmap(nums,A){
 
 /* ================= بناء التقرير ================= */
 function setBusy(b){var r=$("report");if(b){r.innerHTML='<div class="note" data-busy="1">'+esc(L().loading)+'</div>'}}
+/* أعمدة لا يصح جمعها (عمر، سعر، نسبة...) ← المتوسط افتراضيًا */
+var AVG_RE=/(^|[^a-z])(age|rate|ratio|score|rating|temp|temperature|height|weight|duration|percent|pct)([^a-z]|$)|price|%|عمر|سعر|نسبة|معدل|درجة|تقييم|طول|وزن|مدة/i;
+function defAgg(name){return AVG_RE.test(String(name))?"avg":"sum"}
 function pickOpts(full){
   var nums=full.cols.filter(function(c){return c.type==="num"}),
       cats=full.cols.filter(function(c){return c.type==="cat"}),
@@ -809,8 +812,10 @@ function pickOpts(full){
       o=state.opts;
   function ok(list,v){return list.some(function(c){return c.name===v})}
   if(!ok(nums,o.metric)){
-    var pref=nums.filter(function(c){return /sales|revenue|amount|total|price|income|profit|cost|مبيعات|ايراد|إيراد|مبلغ|سعر|دخل|ربح|تكلفة|اجمالي|إجمالي/i.test(c.name)})[0];
+    var pref=nums.filter(function(c){return /sales|revenue|amount|total|income|profit|مبيعات|ايراد|إيراد|مبلغ|دخل|ربح|اجمالي|إجمالي/i.test(c.name)})[0]
+      ||nums.filter(function(c){return /price|cost|سعر|تكلفة/i.test(c.name)})[0];
     o.metric=pref?pref.name:(nums.length?nums[0].name:"");
+    o.aggTouched=false; o.agg=defAgg(o.metric);
   }
   if(!ok(cats,o.group)) o.group=cats.length?cats[0].name:"";
   if(!ok(dates,o.date)) o.date=dates.length?dates[0].name:"";
@@ -1152,7 +1157,11 @@ $("title").addEventListener("input",function(){
 $("sampleBtn").addEventListener("click",function(){state.titleEdited=false;loadSample()});
 $("langBtn").addEventListener("click",function(){setLang(state.lang==="ar"?"en":"ar")});
 [["metric","metric"],["group","group"],["dateCol","date"],["agg","agg"]].forEach(function(p){
-  $(p[0]).addEventListener("change",function(){state.opts[p[1]]=this.value;render()});
+  $(p[0]).addEventListener("change",function(){
+    state.opts[p[1]]=this.value;
+    if(p[1]==="agg") state.opts.aggTouched=true;
+    if(p[1]==="metric" && !state.opts.aggTouched){state.opts.agg=defAgg(this.value);$("agg").value=state.opts.agg}
+    render()});
 });
 $("fcol").addEventListener("change",function(){state.opts.fcol=this.value;state.opts.fvals=[];renderChips();render()});
 
